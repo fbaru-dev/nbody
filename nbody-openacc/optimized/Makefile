@@ -1,13 +1,14 @@
-CXX = icpc
-OPTFLAGS = -std=c++11 -O3 -xAVX -qopt-report-phase=vec -qopt-report=5 -qopt-report-filter="GSimulation.cpp,133-237"
+CXX = pgc++ 
+#icpc
+OPTFLAGS = -fast 
 DEBUGFLAGS = -g
-OMPFLAGS = -qopenmp
+ACCFLAGS = -acc tesla:cc60 -Minfo=accel
 INCLUDES = 
 
-CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(OMPFLAGS)
+CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(ACCFLAGS)
 
 SOURCES = GSimulation.cpp main.cpp
-
+#SOURCES = sim.cpp struct.cpp
 .SUFFIXES: .o .cpp
 
 ##########################################

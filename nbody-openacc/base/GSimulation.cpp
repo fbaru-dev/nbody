@@ -99,18 +99,15 @@ void GSimulation :: init_mass()
 
 void GSimulation :: start() 
 {
-  //allocate particles
-  particles = new Particle[get_npart()];
- 
-  init_pos();	
-  init_vel();
-  init_acc();
-  init_mass();
-  
-  print_header();
-  
+  real_type energy;
   real_type dt = get_tstep();
   int n = get_npart();
+  int i,j;
+  
+  //allocate particles
+  particles = new Particle[n];
+  
+  print_header();
   
   _totTime = 0.; 
   
@@ -120,8 +117,6 @@ void GSimulation :: start()
   CPUTime time;
   double ts0 = 0;
   double ts1 = 0;
-  int i,j;
-  real_type energy;
   
   double gflops = 1e-9 * ( (11. + 18. ) * double( (n*n-1) ) +  double(n) * 19. );
   double av=0.0, dev=0.0;

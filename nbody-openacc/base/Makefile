@@ -2,7 +2,7 @@ CXX = pgc++
 #icpc
 OPTFLAGS = -fast 
 DEBUGFLAGS = -g
-ACCFLAGS = -acc -ta=tesla:cc60 -Minfo=accel
+ACCFLAGS = -acc tesla:cc60 -Minfo=accel
 INCLUDES = 
 
 CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(ACCFLAGS)
