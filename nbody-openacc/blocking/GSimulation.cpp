@@ -178,7 +178,7 @@ void GSimulation :: start()
      real_type acc_xtile[size_tile];
      real_type acc_ytile[size_tile] ;
      real_type acc_ztile[size_tile];
-     for (int k = 0; k < size_time; k++) 
+     for (int k = 0; k < size_tile; k++) 
      {	     
        acc_xtile[k] = 0.0f;
        acc_ytile[k] = 0.0f;
@@ -211,7 +211,7 @@ void GSimulation :: start()
 // 	 }
       }
      }
-     for (int k = 0; k < size_time; k++) 
+     for (int k = 0; k < size_tile; k++) 
      {	
        particles->acc_x[ii+k] = acc_xtile[k];
        particles->acc_y[ii+k] = acc_ytile[k];
