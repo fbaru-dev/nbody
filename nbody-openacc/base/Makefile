@@ -17,14 +17,14 @@ OBJSC = $(SOURCES:.cpp=.o)
 
 EXEC=nbody.x
 
-all: cpu
+all: gpu
 
 %.o: %.cpp
 	$(info )
 	$(info Compiling the object file for CPU: )
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ 
 
-cpu: $(OBJSC)
+gpu: $(OBJSC)
 	$(info )
 	$(info Linking the CPU executable:)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(EXEC) $(OBJSC)
