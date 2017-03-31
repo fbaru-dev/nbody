@@ -2,13 +2,12 @@ CXX = pgc++
 #icpc
 OPTFLAGS = -fast 
 DEBUGFLAGS = -g
-ACCFLAGS = -acc tesla:cc60 -Minfo=accel
+ACCFLAGS = -acc -ta=tesla:cc60 -Minfo=accel
 INCLUDES = 
 
 CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(ACCFLAGS)
 
 SOURCES = GSimulation.cpp main.cpp
-#SOURCES = sim.cpp struct.cpp
 .SUFFIXES: .o .cpp
 
 ##########################################
@@ -17,21 +16,21 @@ OBJSC = $(SOURCES:.cpp=.o)
 
 EXEC=nbody.x
 
-all: cpu
+all: gpu
 
 %.o: %.cpp
 	$(info )
-	$(info Compiling the object file for CPU: )
+	$(info Compiling the object file for GPU: )
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ 
 
-cpu: $(OBJSC)
+gpu: $(OBJSC)
 	$(info )
-	$(info Linking the CPU executable:)
+	$(info Linking the GPU executable:)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(EXEC) $(OBJSC)
 	
 run: 
 	$(info )
-	$(info Run the default test case on CPU: )
+	$(info Run the default test case on GPU: )
 	./nbody.x 
 	
 clean: 
