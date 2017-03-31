@@ -106,19 +106,32 @@ void GSimulation :: start()
   int i,j;
   
   //allocate particles
-  const int alignment = 32;
-  particles = (ParticleSoA*) _mm_malloc(sizeof(ParticleSoA),alignment);
+  //const int alignment = 32;
+  //particles = (ParticleSoA*) _mm_malloc(sizeof(ParticleSoA),alignment);
 
-  particles->pos_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->pos_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->pos_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->vel_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->vel_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->vel_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->acc_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->acc_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->acc_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  particles->mass  = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->pos_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->pos_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->pos_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->vel_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->vel_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->vel_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->acc_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->acc_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->acc_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+  //particles->mass  = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
+
+  particles = new ParticleSoA;
+  
+  particles->pos_x = new real_type[n];
+  particles->pos_y = new real_type[n];
+  particles->pos_z = new real_type[n];
+  particles->vel_x = new real_type[n];
+  particles->vel_y = new real_type[n];
+  particles->vel_z = new real_type[n];
+  particles->acc_x = new real_type[n];
+  particles->acc_y = new real_type[n];
+  particles->acc_z = new real_type[n];
+  particles->mass  = new real_type[n]; 
 
   init_pos();	
   init_vel();
@@ -168,13 +181,6 @@ void GSimulation :: start()
      acc_xtile[:] = 0.0f;
      acc_ytile[:] = 0.0f;
      acc_ztile[:] = 0.0f; 
-     __assume_aligned(particles->pos_x, alignment);
-     __assume_aligned(particles->pos_y, alignment);
-     __assume_aligned(particles->pos_z, alignment);
-     __assume_aligned(particles->acc_x, alignment);
-     __assume_aligned(particles->acc_y, alignment);
-     __assume_aligned(particles->acc_z, alignment);
-     __assume_aligned(particles->mass, alignment);
      for (j = 0; j < n; j++)
      {
        real_type m = particles->mass[j];
@@ -297,15 +303,26 @@ void GSimulation :: print_header()
 
 GSimulation :: ~GSimulation()
 {
-  _mm_free(particles->pos_x);
-  _mm_free(particles->pos_y);
-  _mm_free(particles->pos_z);
-  _mm_free(particles->vel_x);
-  _mm_free(particles->vel_y);
-  _mm_free(particles->vel_z);
-  _mm_free(particles->acc_x);
-  _mm_free(particles->acc_y);
-  _mm_free(particles->acc_z);
-  _mm_free(particles->mass);
-  _mm_free(particles);
+//  _mm_free(particles->pos_x);
+//  _mm_free(particles->pos_y);
+//  _mm_free(particles->pos_z);
+//  _mm_free(particles->vel_x);
+//  _mm_free(particles->vel_y);
+//  _mm_free(particles->vel_z);
+//  _mm_free(particles->acc_x);
+//  _mm_free(particles->acc_y);
+//  _mm_free(particles->acc_z);
+//  _mm_free(particles->mass);
+//  _mm_free(particles);
+  delete [] particles->pos_x;
+  delete [] particles->pos_y;
+  delete [] particles->pos_z;
+  delete [] particles->vel_x;
+  delete [] particles->vel_y;
+  delete [] particles->vel_z;
+  delete [] particles->acc_x;
+  delete [] particles->acc_y;
+  delete [] particles->acc_z;
+  delete [] particles->mass;
+  delete particles;
 }
