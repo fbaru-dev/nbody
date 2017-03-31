@@ -34,4 +34,4 @@ run:
 	./nbody.x 
 	
 clean: 
-	rm -f $(OBJSC) nbody.x *.optrpt
+	rm -f $(OBJSC) nbody.x
