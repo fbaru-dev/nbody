@@ -178,9 +178,12 @@ void GSimulation :: start()
      real_type acc_xtile[size_tile];
      real_type acc_ytile[size_tile] ;
      real_type acc_ztile[size_tile];
-     acc_xtile[:] = 0.0f;
-     acc_ytile[:] = 0.0f;
-     acc_ztile[:] = 0.0f; 
+     for (int k = 0; k < size_time; k++) 
+     {	     
+       acc_xtile[k] = 0.0f;
+       acc_ytile[k] = 0.0f;
+       acc_ztile[k] = 0.0f;
+     }
      for (j = 0; j < n; j++)
      {
        real_type m = particles->mass[j];
@@ -208,9 +211,12 @@ void GSimulation :: start()
 // 	 }
       }
      }
-     particles->acc_x[ii:size_tile] = acc_xtile[0:size_tile];
-     particles->acc_y[ii:size_tile] = acc_ytile[0:size_tile];
-     particles->acc_z[ii:size_tile] = acc_ztile[0:size_tile];
+     for (int k = 0; k < size_time; k++) 
+     {	
+       particles->acc_x[ii+k] = acc_xtile[k];
+       particles->acc_y[ii+k] = acc_ytile[k];
+       particles->acc_z[ii+k] = acc_ztile[k];
+     }	     
   }
    
    energy = 0;
