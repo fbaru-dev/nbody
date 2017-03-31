@@ -2,13 +2,12 @@ CXX = pgc++
 #icpc
 OPTFLAGS = -fast 
 DEBUGFLAGS = -g
-ACCFLAGS = -acc tesla:cc60 -Minfo=accel
+ACCFLAGS = -acc -ta=tesla:cc60 -Minfo=accel
 INCLUDES = 
 
 CXXFLAGS = $(OPTFLAGS) $(DEBUGFLAGS) $(ACCFLAGS)
 
 SOURCES = GSimulation.cpp main.cpp
-#SOURCES = sim.cpp struct.cpp
 .SUFFIXES: .o .cpp
 
 ##########################################
