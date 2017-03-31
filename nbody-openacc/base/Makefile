@@ -21,17 +21,17 @@ all: gpu
 
 %.o: %.cpp
 	$(info )
-	$(info Compiling the object file for CPU: )
+	$(info Compiling the object file for GPU: )
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@ 
 
 gpu: $(OBJSC)
 	$(info )
-	$(info Linking the CPU executable:)
+	$(info Linking the GPU executable:)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $(EXEC) $(OBJSC)
 	
 run: 
 	$(info )
-	$(info Run the default test case on CPU: )
+	$(info Run the default test case on GPU: )
 	./nbody.x 
 	
 clean: 
