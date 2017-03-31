@@ -140,6 +140,8 @@ void GSimulation :: start()
   double av=0.0, dev=0.0;
   int nf = 0;
   
+  const int size_tile = 8;
+
   const double t0 = time.start();
   
   #pragma acc enter data copyin(this[0:1],particles[0:1])
@@ -156,11 +158,16 @@ void GSimulation :: start()
                               present(particles->vel_x[0:n], particles->vel_y[0:n], particles->vel_z[0:n]) \
                               present(particles->acc_x[0:n], particles->acc_y[0:n], particles->acc_z[0:n]) \
                               present(particles->mass[0:n])
-                              
   {  // start of parallel region
    #pragma acc parallel loop 
-   for (i = 0; i < n; i++)// update acceleration
+   for (int ii = 0; ii < n; ii += size_tile )// update acceleration
    {
+     real_type acc_xtile[size_tile];
+     real_type acc_ytile[size_tile] ;
+     real_type acc_ztile[size_tile];
+     acc_xtile[:] = 0.0f;
+     acc_ytile[:] = 0.0f;
+     acc_ztile[:] = 0.0f; 
      __assume_aligned(particles->pos_x, alignment);
      __assume_aligned(particles->pos_y, alignment);
      __assume_aligned(particles->pos_z, alignment);
@@ -168,36 +175,38 @@ void GSimulation :: start()
      __assume_aligned(particles->acc_y, alignment);
      __assume_aligned(particles->acc_z, alignment);
      __assume_aligned(particles->mass, alignment);
-     real_type px_i = particles->pos_x[i];
-     real_type py_i = particles->pos_y[i];
-     real_type pz_i = particles->pos_z[i];
-     real_type ax_i = particles->acc_x[i];
-     real_type ay_i = particles->acc_y[i];
-     real_type az_i = particles->acc_z[i];
      for (j = 0; j < n; j++)
      {
-       if (j != i)
+       real_type m = particles->mass[j];
+       real_type px_j = particles->pos_x[j];
+       real_type py_j = particles->pos_y[j];
+       real_type pz_j = particles->pos_z[j];
+       for (int i = ii; i < ii + size_tile; i++)
        {
-	 real_type dx, dy, dz;
-	 real_type distanceSqr = 0.0f;
-	 real_type distanceInv = 0.0f;
+// 	 if (j != i)
+//          {
+	   real_type dx, dy, dz;
+	   real_type distanceSqr = 0.0f;
+	   real_type distanceInv = 0.0f;
 		  
-	 dx = particles->pos_x[j] - px_i;	//1flop
-	 dy = particles->pos_y[j] - py_i;	//1flop	
-	 dz = particles->pos_z[j] - pz_i;	//1flop
+	   dx = px_j -  particles->pos_x[i];	//1flop
+	   dy = py_j -  particles->pos_y[i];	//1flop	
+	   dz = pz_j -  particles->pos_z[i];	//1flop
 	
- 	 distanceSqr = dx*dx + dy*dy + dz*dz + softeningSquared;	//6flops
- 	 distanceInv = 1.0f / sqrtf(distanceSqr);			//1div+1sqrt
+ 	   distanceSqr = dx*dx + dy*dy + dz*dz + softeningSquared;	//6flops
+ 	   distanceInv = 1.0f / sqrtf(distanceSqr);			//1div+1sqrt
 
-	 ax_i += dx * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
-	 ay_i += dy * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
-	 az_i += dz * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
-       }
+	   acc_xtile[i-ii] += dx * G * m * distanceInv * distanceInv * distanceInv;	//6flops
+	   acc_ytile[i-ii] += dy * G * m * distanceInv * distanceInv * distanceInv;	//6flops
+	   acc_ztile[i-ii] += dz * G * m * distanceInv * distanceInv * distanceInv;
+// 	 }
+      }
      }
-     particles->acc_x[i] = ax_i;
-     particles->acc_y[i] = ay_i;
-     particles->acc_z[i] = az_i;
-   }
+     particles->acc_x[ii:size_tile] = acc_xtile[0:size_tile];
+     particles->acc_y[ii:size_tile] = acc_ytile[0:size_tile];
+     particles->acc_z[ii:size_tile] = acc_ztile[0:size_tile];
+  }
+   
    energy = 0;
    #pragma acc parallel loop reduction(+:energy)
    for (i = 0; i < n; ++i)// update position

@@ -49,26 +49,27 @@ void GSimulation :: init_pos()
   
   for(int i=0; i<get_npart(); ++i)
   {
-    real_type r = 1.0 + (rand() / (RAND_MAX/(max - 1.0)));
+    real_type r = static_cast<real_type>(rand()) / static_cast<real_type>(RAND_MAX); 
+    r = (max - 1.0f) * r + 1.0f;
     particles[i].pos[0] = -1.0f + 2.0f * r / max; 
-    particles[i].pos[1] = -1.0f + 2.0f * r / max;
-    particles[i].pos[2] = -1.0f + 2.0f * r / max;
-    
+    particles[i].pos[1] = -1.0f + 2.0f * r / max;  
+    particles[i].pos[2] = -1.0f + 2.0f * r / max;     
   }
 }
 
 void GSimulation :: init_vel()  
 {
-  int gen = 42; 
+  int gen = 42;
   srand(gen);
-  real_type max = static_cast<real_type> ( R_MAX ); 
-  
+  real_type max = static_cast<real_type> (RAND_MAX);
+
   for(int i=0; i<get_npart(); ++i)
   {
-    real_type r = 1.0 + (rand() / (RAND_MAX/(max - 1.0)));
-    particles[i].vel[0] = -1.0e-4f + 2.0f * r / max * 1.0e-4f ;
-    particles[i].vel[1] = -1.0e-4f + 2.0f * r / max * 1.0e-4f ;
-    particles[i].vel[2] = -1.0e-4f + 2.0f * r / max * 1.0e-4f ;
+    real_type r = static_cast<real_type>(rand()) / static_cast<real_type>(RAND_MAX); 
+    r = (max - 1.0f) * r + 1.0f;
+    particles[i].vel[0] = -1.0e-4 + 2.0f * r / max * 1.0e-4f;  
+    particles[i].vel[1] = -1.0e-4 + 2.0f * r / max * 1.0e-4f; 
+    particles[i].vel[2] = -1.0e-4 + 2.0f * r / max * 1.0e-4f; 
   }
 }
 
@@ -84,18 +85,30 @@ void GSimulation :: init_acc()
 
 void GSimulation :: init_mass() 
 {
+//   std::random_device rd;	//random number generator
+//   std::mt19937 gen(42);  
+//   std::uniform_int_distribution<int> unif_d(1,R_MAX);
+//   
+//   real_type n = static_cast<real_type> (get_npart());
+//   real_type max = static_cast<real_type> (R_MAX);
+// 
+//   for(int i=0; i<get_npart(); ++i)
+//   {
+//     real_type r = static_cast<real_type> ( unif_d(gen) );
+//     particles[i].mass = n + n * r / max; 
+//   }
   int gen = 42;
   srand(gen);
   real_type n   = static_cast<real_type> (get_npart());
-  real_type max = static_cast<real_type> (R_MAX);
+  real_type max = static_cast<real_type> (RAND_MAX);
 
   for(int i=0; i<get_npart(); ++i)
   {
-    real_type r = 1.0 + (rand() / (RAND_MAX/(max - 1.0)));
-    particles[i].mass = n + n * r / max;
+    real_type r = static_cast<real_type>(rand()) / static_cast<real_type>(RAND_MAX); 
+    r = (max - 1.0f) * r + 1.0f;
+    particles[i].mass =  n + n * r / max; 
   }
 }
-
 
 void GSimulation :: start() 
 {
@@ -106,13 +119,19 @@ void GSimulation :: start()
   
   //allocate particles
   particles = new Particle[n];
+ 
+  init_pos();	
+  init_vel();
+  init_acc();
+  init_mass();
   
   print_header();
   
   _totTime = 0.; 
   
-  const float softeningSquared = 0.01f*0.01f;
-  const float G = 6.67259e-11f;
+  const double softeningSquared = 0.01*0.01;
+  // prevents explosion in the case the particles are really close to each other 
+  const double G = 6.67259e-11;
   
   CPUTime time;
   double ts0 = 0;
@@ -123,69 +142,67 @@ void GSimulation :: start()
   int nf = 0;
   
   const double t0 = time.start();
-  
+
   #pragma acc enter data copyin(this[0:1])
   #pragma acc enter data copyin(particles[0:n])
   
   for (int s=1; s<=get_nsteps(); ++s)
-  {  
-   ts0 += time.start();
-   
+  {   
+    ts0 += time.start();
    #pragma acc data present(this[0:1],particles[0:n]) 
    {   //Start parallel region
-   #pragma acc parallel loop                            
-   for (i = 0; i < n; i++)// update acceleration
-   {
-	real_type ax_i = particles[i].acc[0];
-	real_type ay_i = particles[i].acc[1];
-	real_type az_i = particles[i].acc[2];
-	for (j = 0; j < n; j++)
-	{
-	  if (i != j)
-	  {
-	    real_type dx, dy, dz;
-	    real_type distanceSqr = 0.0f;
-	    real_type distanceInv = 0.0f;
-		  
-	    dx = particles[j].pos[0] - particles[i].pos[0];		//1flop
-	    dy = particles[j].pos[1] - particles[i].pos[1];		//1flop	
-	    dz = particles[j].pos[2] - particles[i].pos[2];		//1flop
-	
- 	    distanceSqr = dx*dx + dy*dy + dz*dz + softeningSquared;		//6flops
- 	    distanceInv = 1.0f / sqrtf(distanceSqr);				//1div+1sqrt
-
-	    ax_i += dx * G * particles[j].mass * distanceInv * distanceInv * distanceInv;	//6flops
-	    ay_i += dy * G * particles[j].mass * distanceInv * distanceInv * distanceInv;	//6flops
-	    az_i += dz * G * particles[j].mass * distanceInv * distanceInv * distanceInv;	//6flops
-
-	  }
-	}
-	particles[i].acc[0] = ax_i;
-	particles[i].acc[1] = ay_i;
-	particles[i].acc[2] = az_i;
-   }
-      energy = 0;
-      #pragma acc parallel loop reduction(+:energy)
-      for (i = 0; i < n; ++i)// update position
+    #pragma acc parallel loop 
+    for (i = 0; i < n; i++)// update acceleration
+    {
+      real_type ax_i = particles[i].acc[0];
+      real_type ay_i = particles[i].acc[1];
+      real_type az_i = particles[i].acc[2];
+      for (j = 0; j < n; j++)
       {
-		particles[i].vel[0] += particles[i].acc[0] * dt;	//2flops
-		particles[i].vel[1] += particles[i].acc[1] * dt;	//2flops
-		particles[i].vel[2] += particles[i].acc[2] * dt;	//2flops
-	  
-		particles[i].pos[0] += particles[i].vel[0] * dt;	//2flops
-		particles[i].pos[1] += particles[i].vel[1] * dt;	//2flops
-		particles[i].pos[2] += particles[i].vel[2] * dt;	//2flops
-
-		particles[i].acc[0] = 0.;
-		particles[i].acc[1] = 0.;
-		particles[i].acc[2] = 0.;
+	if (j != i)
+	{
+	  real_type dx, dy, dz;
+	  real_type distanceSqr = 0.0f;
+	  real_type distanceInv = 0.0f;
+		  
+	  dx = particles[j].pos[0] - particles[i].pos[0];	//1flop
+	  dy = particles[j].pos[1] - particles[i].pos[1];	//1flop	
+	  dz = particles[j].pos[2] - particles[i].pos[2];	//1flop
 	
-		energy += particles[i].mass * (
-				  particles[i].vel[0]*particles[i].vel[0] + 
-                  particles[i].vel[1]*particles[i].vel[1] +
-                  particles[i].vel[2]*particles[i].vel[2]);	//7flops
+	  distanceSqr = dx*dx + dy*dy + dz*dz + softeningSquared;	//6flops
+	  distanceInv = 1.0 / sqrt(distanceSqr);			//1div+1sqrt
+		  
+	  ax_i += dx * G * particles[j].mass * distanceInv * distanceInv * distanceInv;	//6flops
+	  ay_i += dy * G * particles[j].mass * distanceInv * distanceInv * distanceInv;	//6flops
+	  az_i += dz * G * particles[j].mass * distanceInv * distanceInv * distanceInv;	//6flops
+	}
       }
-  }  //End parallel region
+      particles[i].acc[0] = ax_i;
+      particles[i].acc[1] = ay_i;
+      particles[i].acc[2] = az_i;
+    }
+    energy = 0;
+    #pragma acc parallel loop reduction(+:energy)
+    for (i = 0; i < n; ++i)// update position and velocity
+    {
+      particles[i].vel[0] += particles[i].acc[0] * dt;	//2flops
+      particles[i].vel[1] += particles[i].acc[1] * dt;	//2flops
+      particles[i].vel[2] += particles[i].acc[2] * dt;	//2flops
+	 
+      particles[i].pos[0] += particles[i].vel[0] * dt;	//2flops
+      particles[i].pos[1] += particles[i].vel[1] * dt;	//2flops
+      particles[i].pos[2] += particles[i].vel[2] * dt;	//2flops
+
+      particles[i].acc[0] = 0.;
+      particles[i].acc[1] = 0.;
+      particles[i].acc[2] = 0.;
+	
+      energy += particles[i].mass * (
+		particles[i].vel[0]*particles[i].vel[0] + 
+                particles[i].vel[1]*particles[i].vel[1] +
+                particles[i].vel[2]*particles[i].vel[2]); //7flops
+    }
+   }
   
     _kenergy = 0.5 * energy; 
     
@@ -211,8 +228,6 @@ void GSimulation :: start()
     }
   
   } //end of the time step loop
-  #pragma acc exit data copyout (particles[0:n])
-  #pragma acc exit data copyout (this[0:1])
   
   const double t1 = time.stop();
   _totTime  = (t1-t0);
@@ -222,6 +237,8 @@ void GSimulation :: start()
   dev=sqrt(dev/(double)(nf-2)-av*av);
   
   int nthreads=1;
+  #pragma omp parallel
+  nthreads=omp_get_num_threads(); 
 
   std::cout << std::endl;
   std::cout << "# Number Threads     : " << nthreads << std::endl;	   

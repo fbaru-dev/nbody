@@ -1,5 +1,6 @@
 CXX = icpc
-OPTFLAGS = -std=c++11 -O3 -xMIC-AVX512#-xAVX 
+OPTFLAGS = -std=c++11 -O3 -xAVX
+#-xMIC-AVX512 
 DEBUGFLAGS = -g
 OMPFLAGS = -qopenmp
 INCLUDES = 
