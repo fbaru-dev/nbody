@@ -253,7 +253,7 @@ void GSimulation :: start()
   } //end of the time step loop
 	
   #pragma acc exit data copyout(particles->pos_x[0:n], particles->pos_y[0:n], particles->pos_z[0:n])
-  #pragma acc exir data copyout(particles->vel_x[0:n], particles->vel_y[0:n], particles->vel_z[0:n])
+  #pragma acc exit data copyout(particles->vel_x[0:n], particles->vel_y[0:n], particles->vel_z[0:n])
   #pragma acc exit data copyout(particles->acc_x[0:n], particles->acc_y[0:n], particles->acc_z[0:n])
   #pragma acc exit data copyout(particles->mass[0:n])
   #pragma acc exit data copyout(this[0:1],particles[0:1])
