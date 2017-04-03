@@ -256,7 +256,7 @@ void GSimulation :: start()
   #pragma acc exit data copyout(particles->vel_x[0:n], particles->vel_y[0:n], particles->vel_z[0:n])
   #pragma acc exit data copyout(particles->acc_x[0:n], particles->acc_y[0:n], particles->acc_z[0:n])
   #pragma acc exit data copyout(particles->mass[0:n])
-  #pragma acc exit data copyout(this[0:1],particles[0:1])
+  #pragma acc exit data copyout(particles[0:1],this[0:1])
 	
   const double t1 = time.stop();
   _totTime  = (t1-t0);
