@@ -148,8 +148,8 @@ void GSimulation :: start()
   CPUTime time;
   double ts0 = 0;
   double ts1 = 0;
-  
-  double gflops = 1e-9 * ( (11. + 18. ) * double( (n*n-1) ) +  double(n) * 19. );
+  double nd = double(n);
+  double gflops = 1e-9 * ( (11. + 18. ) * nd*(nd-1.0)  +  nd * 19. );
   double av=0.0, dev=0.0;
   int nf = 0;
   
@@ -251,7 +251,13 @@ void GSimulation :: start()
     }
   
   } //end of the time step loop
-  
+	
+  #pragma acc exit data copyout(particles->pos_x[0:n], particles->pos_y[0:n], particles->pos_z[0:n])
+  #pragma acc exir data copyout(particles->vel_x[0:n], particles->vel_y[0:n], particles->vel_z[0:n])
+  #pragma acc exit data copyout(particles->acc_x[0:n], particles->acc_y[0:n], particles->acc_z[0:n])
+  #pragma acc exit data copyout(particles->mass[0:n])
+  #pragma acc exit data copyout(this[0:1],particles[0:1])
+	
   const double t1 = time.stop();
   _totTime  = (t1-t0);
   _totFlops = gflops*get_nsteps();
