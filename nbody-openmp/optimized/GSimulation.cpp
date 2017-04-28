@@ -164,8 +164,6 @@ void GSimulation :: start()
      real_type az_i = particles->acc_z[i];
      for (j = 0; j < n; j++)
      {
-       if (j != i)
-       {
 	 real_type dx, dy, dz;
 	 real_type distanceSqr = 0.0f;
 	 real_type distanceInv = 0.0f;
@@ -180,7 +178,6 @@ void GSimulation :: start()
 	 ax_i += dx * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
 	 ay_i += dy * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
 	 az_i += dz * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
-       }
      }
      particles->acc_x[i] = ax_i;
      particles->acc_y[i] = ay_i;
