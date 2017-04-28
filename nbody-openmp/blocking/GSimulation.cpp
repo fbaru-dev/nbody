@@ -172,8 +172,6 @@ void GSimulation :: start()
        real_type pz_j = particles->pos_z[j];
        for (int i = ii; i < ii + size_tile; i++)
        {
-// 	 if (j != i)
-//          {
 	   real_type dx, dy, dz;
 	   real_type distanceSqr = 0.0f;
 	   real_type distanceInv = 0.0f;
@@ -188,7 +186,6 @@ void GSimulation :: start()
 	   acc_xtile[i-ii] += dx * G * m * distanceInv * distanceInv * distanceInv;	//6flops
 	   acc_ytile[i-ii] += dy * G * m * distanceInv * distanceInv * distanceInv;	//6flops
 	   acc_ztile[i-ii] += dz * G * m * distanceInv * distanceInv * distanceInv;
-// 	 }
       }
      }
      particles->acc_x[ii:size_tile] = acc_xtile[0:size_tile];
