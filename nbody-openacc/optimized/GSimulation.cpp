@@ -105,21 +105,6 @@ void GSimulation :: start()
   int n = get_npart();
   int i,j;
   
-  //allocate particles
-  //const int alignment = 32;
-  //particles = (ParticleSoA*) _mm_malloc(sizeof(ParticleSoA),alignment);
-
-  //particles->pos_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->pos_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->pos_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->vel_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->vel_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->vel_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->acc_x = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->acc_y = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->acc_z = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-  //particles->mass  = (real_type*) _mm_malloc(n*sizeof(real_type),alignment);
-
   particles = new ParticleSoA;
   
   particles->pos_x = new real_type[n];
@@ -182,8 +167,6 @@ void GSimulation :: start()
      real_type az_i = particles->acc_z[i];
      for (j = 0; j < n; j++)
      {
-       if (j != i)
-       {
 	 real_type dx, dy, dz;
 	 real_type distanceSqr = 0.0f;
 	 real_type distanceInv = 0.0f;
@@ -198,7 +181,6 @@ void GSimulation :: start()
 	 ax_i += dx * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
 	 ay_i += dy * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
 	 az_i += dz * G * particles->mass[j] * distanceInv * distanceInv * distanceInv; //6flops
-       }
      }
      particles->acc_x[i] = ax_i;
      particles->acc_y[i] = ay_i;
@@ -300,17 +282,6 @@ void GSimulation :: print_header()
 
 GSimulation :: ~GSimulation()
 {
-//  _mm_free(particles->pos_x);
-//  _mm_free(particles->pos_y);
-//  _mm_free(particles->pos_z);
-//  _mm_free(particles->vel_x);
-//  _mm_free(particles->vel_y);
-//  _mm_free(particles->vel_z);
-//  _mm_free(particles->acc_x);
-//  _mm_free(particles->acc_y);
-//  _mm_free(particles->acc_z);
-//  _mm_free(particles->mass);
-//  _mm_free(particles);
   delete [] particles->pos_x;
   delete [] particles->pos_y;
   delete [] particles->pos_z;
