@@ -1,2 +1,2 @@
 # nbody
-nbody simulation code
+nbody simulation code 
