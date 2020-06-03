@@ -85,18 +85,6 @@ void GSimulation :: init_acc()
 
 void GSimulation :: init_mass() 
 {
-//   std::random_device rd;	//random number generator
-//   std::mt19937 gen(42);  
-//   std::uniform_int_distribution<int> unif_d(1,R_MAX);
-//   
-//   real_type n = static_cast<real_type> (get_npart());
-//   real_type max = static_cast<real_type> (R_MAX);
-// 
-//   for(int i=0; i<get_npart(); ++i)
-//   {
-//     real_type r = static_cast<real_type> ( unif_d(gen) );
-//     particles[i].mass = n + n * r / max; 
-//   }
   int gen = 42;
   srand(gen);
   real_type n   = static_cast<real_type> (get_npart());
